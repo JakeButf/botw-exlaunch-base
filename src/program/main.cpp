@@ -1,4 +1,5 @@
 #include "lib.hpp"
+#include "inputs.h"
 
 MAKE_HOOK_T(void, stubCopyright, (bool),
             /* Call the original implementation of this function, but with a false argument. */
@@ -17,6 +18,8 @@ extern "C" void exl_main(void* x0, void* x1) {
     /* If an integer is provided instead of a symbol, it will be treated as an offset relative to main. */
     INJECT_HOOK_T(nn::oe::SetCopyrightVisibility, stubCopyright);
 
+    //Init Hooks
+    inputs::InitHooks();
     /*
     For sysmodules/applets, you have to call the entrypoint when ready
     exl::hook::CallTargetEntrypoint(x0, x1);

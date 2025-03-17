@@ -25,6 +25,7 @@ class inputs
 {
 
 public:
+    static void InitHooks();
     static void UpdateControllerState();
     static void SetPort(ulong port) { selectedPort = port;}
 

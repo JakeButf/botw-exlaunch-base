@@ -1,12 +1,33 @@
 #include "inputs.h"
 #include "diag/assert.hpp"
+#include "lib.hpp"
+
+// Declare the function type for GetNpadStates
+using GetNpadStatesFunc = void(*)(nn::hid::NpadFullKeyState*, int, const unsigned int&);
+static GetNpadStatesFunc GetNpadStatesImpl;
+
+// Declare our hook function
+static void UpdateControllerStateHook(nn::hid::NpadFullKeyState* state, int port, const unsigned int& style) {
+    GetNpadStatesImpl(state, port, style);
+    
+    inputs::UpdateControllerState();
+}
 
 nn::hid::NpadBaseState inputs::previousControllerState{};
 nn::hid::NpadBaseState inputs::currentControllerState{};
 
-ulong inputs::selectedPort = -1;
+ulong inputs::selectedPort = 0; //use primary controller
 
 bool inputs::isReadingInput = true;
+
+void inputs::InitHooks()
+{
+    GetNpadStatesImpl = exl::hook::HookFunc<GetNpadStatesFunc>(
+        &nn::hid::GetNpadStates,
+        UpdateControllerStateHook,
+        true
+    );
+}
 
 Styles inputs::GetStyle(nn::hid::NpadStyleSet style)
 {
