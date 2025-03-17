@@ -11,12 +11,17 @@ set(CMAKE_CXX_STANDARD 20)
 enable_language(ASM C CXX)
 
 ## Title Id
-set(CONFIG_TITLE_ID 0x0100801011c3e000)
-add_compile_definitions(EXL_PROGRAM_ID=${CONFIG_TITLE_ID} EXL_LOAD_KIND=Module EXL_LOAD_KIND_ENUM=2)
+set(TITLE_ID 01007ef00011e000)
+set(CONFIG_TITLE_ID 0x${TITLE_ID})
+add_compile_definitions(EXL_PROGRAM_ID=${CONFIG_TITLE_ID} NNSDK=1)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/module/subsdk9.json.template ${CMAKE_CURRENT_BINARY_DIR}/subsdk9.json)
 
 ## Project sources
+include_directories(${PROJECT_SOURCE_DIR}/src/nn)
+include_directories(${PROJECT_SOURCE_DIR}/src/lib)
+include_directories(${PROJECT_SOURCE_DIR}/src/program)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/lib/)
 file(GLOB_RECURSE SOURCES_ASM ${PROJECT_SOURCE_DIR}/src/*.s)
 file(GLOB_RECURSE SOURCES_C ${PROJECT_SOURCE_DIR}/src/*.c)
 file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -26,7 +31,11 @@ include(${CMAKE_SOURCE_DIR}/cmake/SwitchTools.cmake)
 
 ## subsdk9
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
-add_executable(subsdk9 ${SOURCES_ASM} ${SOURCES_C} ${SOURCES_CXX})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DISEMU=${ISEMU}")
+#set_source_files_properties(${SOURCES_CXX} PROPERTIES LANGUAGE CXX)
+add_executable(subsdk9 ${SOURCES_ASM} ${SOURCES_C} ${SOURCES_H} ${SOURCES_CXX})
+add_compile_definitions(EXL_LOAD_KIND=Module EXL_LOAD_KIND_ENUM=EXL_LOAD_KIND_MODULE)
+target_link_libraries(subsdk9 ${LOCAL_LIBRARIES})
 
 ## Prepare subsdk ld
 set(SUBSDK_LD_PATH ${CMAKE_CURRENT_SOURCE_DIR}/module/subsdk9.ld)
