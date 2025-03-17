@@ -2,14 +2,13 @@
 #include "diag/assert.hpp"
 #include "lib.hpp"
 
-// Declare the function type for GetNpadStates
 using GetNpadStatesFunc = void(*)(nn::hid::NpadFullKeyState*, int, const unsigned int&);
 static GetNpadStatesFunc GetNpadStatesImpl;
 
-// Declare our hook function
+//Hook into controller update function (only gamepad?)
 static void UpdateControllerStateHook(nn::hid::NpadFullKeyState* state, int port, const unsigned int& style) {
     GetNpadStatesImpl(state, port, style);
-    
+
     inputs::UpdateControllerState();
 }
 
